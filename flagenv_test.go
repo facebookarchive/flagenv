@@ -15,7 +15,6 @@ func TestParse(t *testing.T) {
 	var flagDotSeparator = flag.String("foo.bar", "", "")
 
 	if err := parse(); err != nil {
-		t.Log("blaa")
 		t.Error(err)
 	}
 
@@ -30,6 +29,17 @@ func TestParse(t *testing.T) {
 	if *flagDotSeparator != "barfoo" {
 		t.Fail()
 	}
+
+	os.Setenv("FOOBAR", "bar")
+	UseUpperCaseFlagNames = true
+	var flagUppercase = flag.String("foobar", "", "")
+	if err := parse(); err != nil {
+		t.Error(err)
+	}
+	if *flagUppercase != "bar" {
+		t.Fail()
+	}
+	UseUpperCaseFlagNames = false
 
 	os.Setenv("foo_int", "i should not be a string")
 	flag.Int("foo_int", 0, "")

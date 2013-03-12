@@ -10,6 +10,10 @@ import (
 	"strings"
 )
 
+// If set to true, the corresponding environment variable name for a flag will be uppercased.
+// ie: For a flag named "foobar", the corresponding environment variable will be "FOOBAR"
+var UseUpperCaseFlagNames = false
+
 func contains(list []*flag.Flag, f *flag.Flag) bool {
 	for _, i := range list {
 		if i == f {
@@ -35,7 +39,11 @@ func parse() (err error) {
 	flag.VisitAll(func(f *flag.Flag) {
 		all = append(all, f)
 		if !contains(explicit, f) {
-			val := os.Getenv(strings.Replace(f.Name, ".", "_", -1))
+			name := strings.Replace(f.Name, ".", "_", -1)
+			if UseUpperCaseFlagNames {
+				name = strings.ToUpper(name)
+			}
+			val := os.Getenv(name)
 			if val != "" {
 				err := f.Value.Set(val)
 				if err != nil {
@@ -48,6 +56,12 @@ func parse() (err error) {
 	return nil
 }
 
+// For each declared flag, Parse() will get the value of the corresponding
+// environment variable and will set it. If dot are presentrs in the flag name,
+// they will be converted to underscored. If you want flag names to be converted
+// to uppercase, you can set `UseUpperCaseFlagNames` to `true`.
+//
+// If Parse fails, a fatal error is issued.
 func Parse() {
 	if err := parse(); err != nil {
 		log.Fatalln(err)

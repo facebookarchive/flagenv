@@ -40,6 +40,7 @@ func parse() (err error) {
 		all = append(all, f)
 		if !contains(explicit, f) {
 			name := strings.Replace(f.Name, ".", "_", -1)
+			name = strings.Replace(name, "-", "_", -1)
 			if UseUpperCaseFlagNames {
 				name = strings.ToUpper(name)
 			}
@@ -57,9 +58,9 @@ func parse() (err error) {
 }
 
 // For each declared flag, Parse() will get the value of the corresponding
-// environment variable and will set it. If dot are presentrs in the flag name,
-// they will be converted to underscored. If you want flag names to be converted
-// to uppercase, you can set `UseUpperCaseFlagNames` to `true`.
+// environment variable and will set it. If dots or dash are presents in the
+// flag name, they will be converted to underscores. If you want flag names to
+// be converted to uppercase, you can set `UseUpperCaseFlagNames` to `true`.
 //
 // If Parse fails, a fatal error is issued.
 func Parse() {

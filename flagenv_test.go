@@ -13,6 +13,7 @@ func TestParse(t *testing.T) {
 	var flagFoo = flag.String("foo", "", "")
 	var flagFoobar = flag.String("foo_bar", "", "")
 	var flagDotSeparator = flag.String("foo.bar", "", "")
+	var flagDashSeparator = flag.String("foo-bar", "", "")
 
 	if err := parse(); err != nil {
 		t.Error(err)
@@ -27,6 +28,11 @@ func TestParse(t *testing.T) {
 
 	// Testing . separator
 	if *flagDotSeparator != "barfoo" {
+		t.Fail()
+	}
+
+	// Testing - separator
+	if *flagDashSeparator != "barfoo" {
 		t.Fail()
 	}
 

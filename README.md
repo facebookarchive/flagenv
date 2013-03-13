@@ -1,3 +1,4 @@
-# flagenv
+go.flagenv [![Build Status](https://secure.travis-ci.org/daaku/go.flagenv.png)](http://travis-ci.org/daaku/go.flagenv)
+==========
 
-Package flagenv provides the ability to populate flags from environment variables.
+Documentation: http://go.pkgdoc.org/github.com/daaku/go.flagenv

@@ -4,6 +4,7 @@ package flagenv
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"strings"
@@ -18,12 +19,19 @@ func contains(list []*flag.Flag, f *flag.Flag) bool {
 	return false
 }
 
-func Parse() {
+func parse() (err error) {
 	explicit := make([]*flag.Flag, 0)
 	all := make([]*flag.Flag, 0)
 	flag.Visit(func(f *flag.Flag) {
 		explicit = append(explicit, f)
 	})
+
+	defer func() {
+		if e := recover(); e != nil {
+			err = e.(error)
+		}
+	}()
+
 	flag.VisitAll(func(f *flag.Flag) {
 		all = append(all, f)
 		if !contains(explicit, f) {
@@ -31,9 +39,17 @@ func Parse() {
 			if val != "" {
 				err := f.Value.Set(val)
 				if err != nil {
-					log.Fatalf("Failed to set flag %s with value %s", f.Name, val)
+					panic(fmt.Errorf("Failed to set flag %s with value %s", f.Name, val))
 				}
 			}
 		}
 	})
+
+	return nil
+}
+
+func Parse() {
+	if err := parse(); err != nil {
+		log.Fatalln(err)
+	}
 }

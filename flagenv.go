@@ -1,5 +1,4 @@
-// Package flagenv provides the ability to populate flags from
-// environment variables.
+// Package flagenv populates flags from environment variables.
 package flagenv
 
 import (

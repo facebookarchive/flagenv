@@ -38,8 +38,8 @@ func parse() (err error) {
 	flag.VisitAll(func(f *flag.Flag) {
 		all = append(all, f)
 		if !contains(explicit, f) {
-			name := strings.Replace(f.Name, ".", "_", -1)
-			name = strings.Replace(name, "-", "_", -1)
+			r := strings.NewReplacer(".", "_", "-", "_")
+			name := r.Replace(f.Name)
 			if UseUpperCaseFlagNames {
 				name = strings.ToUpper(name)
 			}

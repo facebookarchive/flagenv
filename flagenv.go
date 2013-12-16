@@ -14,6 +14,7 @@ import (
 var UseUpperCaseFlagNames = false
 
 func parse() (err error) {
+	// Record which flags were set by command line args so that we don't overwrite them.
 	set := make(map[*flag.Flag]bool, 0)
 	flag.Visit(func(f *flag.Flag) {
 		set[f] = true

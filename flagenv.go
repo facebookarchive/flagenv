@@ -15,7 +15,6 @@ var UseUpperCaseFlagNames = false
 
 func parse() (err error) {
 	explicit := make(map[*flag.Flag]bool, 0)
-	all := make([]*flag.Flag, 0)
 	flag.Visit(func(f *flag.Flag) {
 		explicit[f] = true
 	})
@@ -27,7 +26,6 @@ func parse() (err error) {
 	}()
 
 	flag.VisitAll(func(f *flag.Flag) {
-		all = append(all, f)
 		if !explicit[f] {
 			r := strings.NewReplacer(".", "_", "-", "_")
 			name := r.Replace(f.Name)

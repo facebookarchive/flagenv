@@ -13,20 +13,11 @@ import (
 // ie: For a flag named "foobar", the corresponding environment variable will be "FOOBAR"
 var UseUpperCaseFlagNames = false
 
-func contains(list []*flag.Flag, f *flag.Flag) bool {
-	for _, i := range list {
-		if i == f {
-			return true
-		}
-	}
-	return false
-}
-
 func parse() (err error) {
-	explicit := make([]*flag.Flag, 0)
+	explicit := make(map[*flag.Flag]bool, 0)
 	all := make([]*flag.Flag, 0)
 	flag.Visit(func(f *flag.Flag) {
-		explicit = append(explicit, f)
+		explicit[f] = true
 	})
 
 	defer func() {
@@ -37,7 +28,7 @@ func parse() (err error) {
 
 	flag.VisitAll(func(f *flag.Flag) {
 		all = append(all, f)
-		if !contains(explicit, f) {
+		if !explicit[f] {
 			r := strings.NewReplacer(".", "_", "-", "_")
 			name := r.Replace(f.Name)
 			if UseUpperCaseFlagNames {

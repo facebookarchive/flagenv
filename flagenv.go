@@ -19,14 +19,8 @@ func parse() (err error) {
 		set[f] = true
 	})
 
-	defer func() {
-		if e := recover(); e != nil {
-			err = e.(error)
-		}
-	}()
-
 	flag.VisitAll(func(f *flag.Flag) {
-		if !set[f] {
+		if !set[f] && err == nil {
 			r := strings.NewReplacer(".", "_", "-", "_")
 			name := r.Replace(f.Name)
 			if UseUpperCaseFlagNames {
@@ -34,15 +28,14 @@ func parse() (err error) {
 			}
 			val := os.Getenv(name)
 			if val != "" {
-				err := f.Value.Set(val)
-				if err != nil {
-					panic(fmt.Errorf("Failed to set flag %s with value %s", f.Name, val))
+				if seterr := f.Value.Set(val); seterr != nil {
+					err = fmt.Errorf("Failed to set flag %s with value %s", f.Name, val)
 				}
 			}
 		}
 	})
 
-	return nil
+	return
 }
 
 // For each declared flag, Parse() will get the value of the corresponding

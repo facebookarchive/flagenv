@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestParse(t *testing.T) {
+func TestParseEnv(t *testing.T) {
 	os.Setenv("foo", "bar")
 	os.Setenv("foo_bar", "barfoo")
 
@@ -15,7 +15,7 @@ func TestParse(t *testing.T) {
 	var flagDotSeparator = flag.String("foo.bar", "", "")
 	var flagDashSeparator = flag.String("foo-bar", "", "")
 
-	if err := parse(); err != nil {
+	if err := ParseEnv(); err != nil {
 		t.Error(err)
 	}
 
@@ -39,7 +39,7 @@ func TestParse(t *testing.T) {
 	os.Setenv("FOOBAR", "bar")
 	UseUpperCaseFlagNames = true
 	var flagUppercase = flag.String("foobar", "", "")
-	if err := parse(); err != nil {
+	if err := ParseEnv(); err != nil {
 		t.Error(err)
 	}
 	if *flagUppercase != "bar" {
@@ -49,7 +49,7 @@ func TestParse(t *testing.T) {
 
 	os.Setenv("foo_int", "i should not be a string")
 	flag.Int("foo_int", 0, "")
-	if err := parse(); err == nil {
+	if err := ParseEnv(); err == nil {
 		t.Fatal("expected error parsing non-integer flag, got none")
 	}
 }

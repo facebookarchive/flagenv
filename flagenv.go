@@ -1,5 +1,4 @@
-// Package flagenv provides the ability to populate flags from
-// environment variables.
+// Package flagenv populates flags from environment variables.
 package flagenv
 
 import (
@@ -14,47 +13,30 @@ import (
 // ie: For a flag named "foobar", the corresponding environment variable will be "FOOBAR"
 var UseUpperCaseFlagNames = false
 
-func contains(list []*flag.Flag, f *flag.Flag) bool {
-	for _, i := range list {
-		if i == f {
-			return true
-		}
-	}
-	return false
-}
-
 func parse() (err error) {
-	explicit := make([]*flag.Flag, 0)
-	all := make([]*flag.Flag, 0)
+	// Record which flags were set by command line args so that we don't overwrite them.
+	set := make(map[*flag.Flag]bool, 0)
 	flag.Visit(func(f *flag.Flag) {
-		explicit = append(explicit, f)
+		set[f] = true
 	})
 
-	defer func() {
-		if e := recover(); e != nil {
-			err = e.(error)
-		}
-	}()
-
 	flag.VisitAll(func(f *flag.Flag) {
-		all = append(all, f)
-		if !contains(explicit, f) {
-			name := strings.Replace(f.Name, ".", "_", -1)
-			name = strings.Replace(name, "-", "_", -1)
+		if !set[f] && err == nil {
+			r := strings.NewReplacer(".", "_", "-", "_")
+			name := r.Replace(f.Name)
 			if UseUpperCaseFlagNames {
 				name = strings.ToUpper(name)
 			}
 			val := os.Getenv(name)
 			if val != "" {
-				err := f.Value.Set(val)
-				if err != nil {
-					panic(fmt.Errorf("Failed to set flag %s with value %s", f.Name, val))
+				if seterr := f.Value.Set(val); seterr != nil {
+					err = fmt.Errorf("Failed to set flag %s with value %s", f.Name, val)
 				}
 			}
 		}
 	})
 
-	return nil
+	return
 }
 
 // For each declared flag, Parse() will get the value of the corresponding

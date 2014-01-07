@@ -20,20 +20,20 @@ func TestParse(t *testing.T) {
 	}
 
 	if *flagFoo != "bar" {
-		t.Fail()
+		t.Fatalf("want 'bar', have %q", *flagFoo)
 	}
 	if *flagFoobar != "barfoo" {
-		t.Fail()
+		t.Fatalf("want 'barfoo', have %q", *flagFoobar)
 	}
 
 	// Testing . separator
 	if *flagDotSeparator != "barfoo" {
-		t.Fail()
+		t.Fatalf("want 'barfoo', have %q", *flagDotSeparator)
 	}
 
 	// Testing - separator
 	if *flagDashSeparator != "barfoo" {
-		t.Fail()
+		t.Fatalf("want 'barfoo', have %q", *flagDashSeparator)
 	}
 
 	os.Setenv("FOOBAR", "bar")
@@ -43,13 +43,13 @@ func TestParse(t *testing.T) {
 		t.Error(err)
 	}
 	if *flagUppercase != "bar" {
-		t.Fail()
+		t.Fatalf("want 'bar', have %q", *flagUppercase)
 	}
 	UseUpperCaseFlagNames = false
 
 	os.Setenv("foo_int", "i should not be a string")
 	flag.Int("foo_int", 0, "")
 	if err := parse(); err == nil {
-		t.Fail()
+		t.Fatal("expected error parsing non-integer flag, got none")
 	}
 }

@@ -40,7 +40,7 @@ func parse() (err error) {
 }
 
 // For each declared flag, Parse() will get the value of the corresponding
-// environment variable and will set it. If dots or dash are presents in the
+// environment variable and will set it. If dots or dashes are present in the
 // flag name, they will be converted to underscores. If you want flag names to
 // be converted to uppercase, you can set `UseUpperCaseFlagNames` to `true`.
 //
@@ -49,4 +49,10 @@ func Parse() {
 	if err := parse(); err != nil {
 		log.Fatalln(err)
 	}
+}
+
+// ParseEnv populates flag values from environment variables. See Parse for
+// details. Unlike Parse, errors are returned rather than exiting the process.
+func ParseEnv() error {
+	return parse()
 }

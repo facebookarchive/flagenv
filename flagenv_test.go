@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestParseEnv(t *testing.T) {
+func TestParse(t *testing.T) {
 	os.Setenv("foo", "bar")
 	os.Setenv("foo_bar", "barfoo")
 
@@ -15,41 +15,41 @@ func TestParseEnv(t *testing.T) {
 	var flagDotSeparator = flag.String("foo.bar", "", "")
 	var flagDashSeparator = flag.String("foo-bar", "", "")
 
-	if err := ParseEnv(); err != nil {
+	if err := parse(); err != nil {
 		t.Error(err)
 	}
 
 	if *flagFoo != "bar" {
-		t.Fatalf("want 'bar', have %q", *flagFoo)
+		t.Fail()
 	}
 	if *flagFoobar != "barfoo" {
-		t.Fatalf("want 'barfoo', have %q", *flagFoobar)
+		t.Fail()
 	}
 
 	// Testing . separator
 	if *flagDotSeparator != "barfoo" {
-		t.Fatalf("want 'barfoo', have %q", *flagDotSeparator)
+		t.Fail()
 	}
 
 	// Testing - separator
 	if *flagDashSeparator != "barfoo" {
-		t.Fatalf("want 'barfoo', have %q", *flagDashSeparator)
+		t.Fail()
 	}
 
 	os.Setenv("FOOBAR", "bar")
 	UseUpperCaseFlagNames = true
 	var flagUppercase = flag.String("foobar", "", "")
-	if err := ParseEnv(); err != nil {
+	if err := parse(); err != nil {
 		t.Error(err)
 	}
 	if *flagUppercase != "bar" {
-		t.Fatalf("want 'bar', have %q", *flagUppercase)
+		t.Fail()
 	}
 	UseUpperCaseFlagNames = false
 
 	os.Setenv("foo_int", "i should not be a string")
 	flag.Int("foo_int", 0, "")
-	if err := ParseEnv(); err == nil {
-		t.Fatal("expected error parsing non-integer flag, got none")
+	if err := parse(); err == nil {
+		t.Fail()
 	}
 }

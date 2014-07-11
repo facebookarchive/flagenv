@@ -24,8 +24,8 @@ func contains(list []*flag.Flag, f *flag.Flag) bool {
 }
 
 func parse() (err error) {
-	explicit := make([]*flag.Flag, 0)
-	all := make([]*flag.Flag, 0)
+	var explicit []*flag.Flag
+	var all []*flag.Flag
 	flag.Visit(func(f *flag.Flag) {
 		explicit = append(explicit, f)
 	})
@@ -57,10 +57,10 @@ func parse() (err error) {
 	return nil
 }
 
-// For each declared flag, Parse() will get the value of the corresponding
-// environment variable and will set it. If dots or dash are presents in the
-// flag name, they will be converted to underscores. If you want flag names to
-// be converted to uppercase, you can set `UseUpperCaseFlagNames` to `true`.
+// Parse will set each defined flag from its corresponding environment
+// variable . If dots or dash are presents in the flag name, they will be
+// converted to underscores. If you want flag names to be converted to
+// uppercase, you can set `UseUpperCaseFlagNames` to `true`.
 //
 // If Parse fails, a fatal error is issued.
 func Parse() {

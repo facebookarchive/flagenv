@@ -14,6 +14,9 @@ import (
 // ie: For a flag named "foobar", the corresponding environment variable will be "FOOBAR"
 var UseUpperCaseFlagNames = false
 
+// Specify a prefix for environment variables
+var Prefix = ""
+
 func contains(list []*flag.Flag, f *flag.Flag) bool {
 	for _, i := range list {
 		if i == f {
@@ -41,6 +44,9 @@ func parse() (err error) {
 		if !contains(explicit, f) {
 			name := strings.Replace(f.Name, ".", "_", -1)
 			name = strings.Replace(name, "-", "_", -1)
+			if Prefix != "" {
+				name = fmt.Sprintf("%s%s", Prefix, name)
+			}
 			if UseUpperCaseFlagNames {
 				name = strings.ToUpper(name)
 			}

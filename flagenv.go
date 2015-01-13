@@ -10,10 +10,6 @@ import (
 	"strings"
 )
 
-// If set to true, the corresponding environment variable name for a flag will be uppercased.
-// ie: For a flag named "foobar", the corresponding environment variable will be "FOOBAR"
-var UseUpperCaseFlagNames = false
-
 // Specify a prefix for environment variables
 var Prefix = ""
 
@@ -47,9 +43,7 @@ func parse() (err error) {
 			if Prefix != "" {
 				name = fmt.Sprintf("%s%s", Prefix, name)
 			}
-			if UseUpperCaseFlagNames {
-				name = strings.ToUpper(name)
-			}
+			name = strings.ToUpper(name)
 			val := os.Getenv(name)
 			if val != "" {
 				err := f.Value.Set(val)
@@ -65,8 +59,7 @@ func parse() (err error) {
 
 // Parse will set each defined flag from its corresponding environment
 // variable . If dots or dash are presents in the flag name, they will be
-// converted to underscores. If you want flag names to be converted to
-// uppercase, you can set `UseUpperCaseFlagNames` to `true`.
+// converted to underscores.
 //
 // If Parse fails, a fatal error is issued.
 func Parse() {

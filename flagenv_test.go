@@ -1,44 +1,70 @@
-package flagenv
+package flagenv_test
 
 import (
 	"flag"
+	"fmt"
 	"os"
+	"regexp"
+	"strings"
 	"testing"
+
+	"github.com/facebookgo/ensure"
+	"github.com/facebookgo/flagenv"
 )
 
-func TestParse(t *testing.T) {
-	os.Setenv("FOO", "bar")
-	os.Setenv("FOO_BAR", "barfoo")
+func named(t, v string) string { return strings.ToUpper(t + v) }
 
-	var flagFoo = flag.String("foo", "", "")
-	var flagFoobar = flag.String("foo_bar", "", "")
-	var flagDotSeparator = flag.String("foo.bar", "", "")
-	var flagDashSeparator = flag.String("foo-bar", "", "")
+func TestNothingToDo(t *testing.T) {
+	const name = "TestNothingToDo"
+	s := flag.NewFlagSet(name, flag.PanicOnError)
+	s.String(named(name, "foo"), "", "")
+	ensure.Nil(t, flagenv.ParseSet(name, s))
+}
 
-	if err := parse(); err != nil {
-		t.Error(err)
-	}
+func TestAFewFlags(t *testing.T) {
+	const name = "TestAFewFlags"
+	s := flag.NewFlagSet(name, flag.PanicOnError)
+	const foo = "42"
+	const bar = int(43)
+	fooActual := s.String("foo", "", "")
+	barActual := s.Int("bar", 0, "")
+	os.Setenv(named(name, "foo"), foo)
+	os.Setenv(named(name, "bar"), fmt.Sprint(bar))
+	ensure.Nil(t, flagenv.ParseSet(name, s))
+	ensure.DeepEqual(t, *fooActual, foo)
+	ensure.DeepEqual(t, *barActual, bar)
+}
 
-	if *flagFoo != "bar" {
-		t.Fail()
-	}
-	if *flagFoobar != "barfoo" {
-		t.Fail()
-	}
+func TestInvalidFlagValue(t *testing.T) {
+	const name = "TestInvalidFlagValue"
+	s := flag.NewFlagSet(name, flag.PanicOnError)
+	s.Int("bar", 0, "")
+	os.Setenv(named(name, "bar"), "a")
+	ensure.Err(t, flagenv.ParseSet(name, s),
+		regexp.MustCompile(`failed to set flag "bar" with value "a"`))
+}
 
-	// Testing . separator
-	if *flagDotSeparator != "barfoo" {
-		t.Fail()
-	}
+func TestReturnsFirstError(t *testing.T) {
+	const name = "TestReturnsFirstError"
+	s := flag.NewFlagSet(name, flag.PanicOnError)
+	s.Int("bar1", 0, "")
+	s.Int("bar2", 0, "")
+	os.Setenv(named(name, "bar1"), "a")
+	ensure.Err(t, flagenv.ParseSet(name, s),
+		regexp.MustCompile(`failed to set flag "bar1" with value "a"`))
+}
 
-	// Testing - separator
-	if *flagDashSeparator != "barfoo" {
-		t.Fail()
-	}
+func TestExplicitAreIgnored(t *testing.T) {
+	const name = "TestExplicitAreIgnored"
+	s := flag.NewFlagSet(name, flag.PanicOnError)
+	const bar = int(43)
+	barActual := s.Int("bar", 0, "")
+	s.Parse([]string{"-bar", fmt.Sprint(bar)})
+	os.Setenv(named(name, "bar"), "44")
+	ensure.Nil(t, flagenv.ParseSet(name, s))
+	ensure.DeepEqual(t, *barActual, bar)
+}
 
-	os.Setenv("FOO_INT", "i should not be a string")
-	flag.Int("foo_int", 0, "")
-	if err := parse(); err == nil {
-		t.Fail()
-	}
+func TestGlobalParse(t *testing.T) {
+	flagenv.Parse()
 }

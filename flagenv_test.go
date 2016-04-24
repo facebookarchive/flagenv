@@ -14,13 +14,14 @@ import (
 
 func named(t, v string) string { return strings.ToUpper(t + v) }
 
-func ExampleParse(){
+func ExampleParse() {
 	var raz string
 	flag.StringVar(&raz, "raz-value", "bar", "set the raz")
-	
+
 	// override default flag value with value found in MY_RAZ_VALUE
 	flagenv.Prefix = "my_"
 	flagenv.Parse()
+
 	// override value found in MY_RAZ_VALUE with command line flag value -raz-value=foo
 	flag.Parse()
 }

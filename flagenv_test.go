@@ -80,3 +80,25 @@ func TestExplicitAreIgnored(t *testing.T) {
 func TestGlobalParse(t *testing.T) {
 	flagenv.Parse()
 }
+
+func TestSetNames(t *testing.T) {
+	const name = "TestSetNames"
+	os.Setenv(named(name, "names"), "default")
+	os.Setenv("NAME", "name")
+	os.Unsetenv("NOT")
+	for _, testdata := range [][]string{
+		[]string{"name", "NOT", "NAME", ""},
+		[]string{"default", named(name, "names")},
+		[]string{"name", "NAME", ""},
+		[]string{"default", "", "NAME"},
+		[]string{"", "NOT"},
+	} {
+		flagenv.SetNames("names", testdata[1:]...)
+		s := flag.NewFlagSet(name, flag.PanicOnError)
+
+		fooActual := s.String("names", "", "")
+		ensure.Nil(t, flagenv.ParseSet(name, s))
+		ensure.DeepEqual(t, *fooActual, testdata[0])
+	}
+
+}

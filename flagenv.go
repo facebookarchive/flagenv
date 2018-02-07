@@ -50,6 +50,7 @@ func ParseSet(prefix string, set *flag.FlagSet) error {
 					err = fmt.Errorf("failed to set flag %q with value %q", f.Name, val)
 				}
 			}
+			f.Usage += fmt.Sprintf(" [env %v]", name)
 		}
 	})
 	return err
